@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { FaHardHat, FaHandshake, FaBolt, FaLock, FaSeedling, FaClock, FaUser, FaBuilding } from 'react-icons/fa';
+import { FaHardHat, FaHandshake, FaBolt, FaLock, FaSeedling, FaClock, FaUser } from 'react-icons/fa';
 import Button from '../components/Button';
 
 const AboutWrapper = styled.div`

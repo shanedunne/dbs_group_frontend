@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { FaChartBar, FaCheck, FaFileAlt, FaHardHat, FaPlus, FaFolder, FaCamera, FaUsers, FaImage } from 'react-icons/fa';
-import { adminAPI, projectsAPI } from '../utils/api';
+import { adminAPI } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import Button from './Button';
 

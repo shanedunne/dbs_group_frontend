@@ -121,9 +121,6 @@ const ProjectValue = styled.div`
 `;
 
 const ProjectCard = ({ project }) => {
-  const formatDate = (date) => {
-    return new Date(date).getFullYear();
-  };
 
   const formatValue = (value) => {
     if (!value) return null;

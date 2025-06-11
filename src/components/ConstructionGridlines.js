@@ -23,12 +23,6 @@ const GridLine = styled.line`
   stroke-dasharray: 5,5;
 `;
 
-const GridLabel = styled.text`
-  fill: ${props => props.theme.colors.secondary};
-  font-family: 'Courier New', monospace;
-  font-size: 12px;
-  font-weight: bold;
-`;
 
 const GridCircle = styled.circle`
   fill: none;

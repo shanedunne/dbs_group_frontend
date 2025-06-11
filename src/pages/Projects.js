@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { projectsAPI } from '../utils/api';
@@ -119,21 +119,7 @@ const Projects = () => {
   const [selectedCategory, setSelectedCategory] = useState(category || searchParams.get('category') || 'all');
   const [viewMode, setViewMode] = useState('grid');
 
-  useEffect(() => {
-    fetchProjects();
-  }, [searchTerm, selectedCategory, currentPage, category]);
-
-  useEffect(() => {
-    // Update URL params when filters change
-    const params = new URLSearchParams();
-    if (searchTerm) params.set('search', searchTerm);
-    if (selectedCategory !== 'all') params.set('category', selectedCategory);
-    if (currentPage > 1) params.set('page', currentPage.toString());
-    
-    setSearchParams(params);
-  }, [searchTerm, selectedCategory, currentPage, setSearchParams]);
-
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -157,7 +143,21 @@ const Projects = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchTerm, selectedCategory, currentPage]);
+
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
+
+  useEffect(() => {
+    // Update URL params when filters change
+    const params = new URLSearchParams();
+    if (searchTerm) params.set('search', searchTerm);
+    if (selectedCategory !== 'all') params.set('category', selectedCategory);
+    if (currentPage > 1) params.set('page', currentPage.toString());
+    
+    setSearchParams(params);
+  }, [searchTerm, selectedCategory, currentPage, setSearchParams]);
 
   const handleClearFilters = () => {
     setCurrentPage(1);

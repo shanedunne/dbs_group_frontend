@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { adminAPI } from '../utils/api';
 import Button from './Button';
@@ -250,11 +250,7 @@ const ProjectManagement = ({ onNavigate, onEditProject }) => {
     search: ''
   });
 
-  useEffect(() => {
-    fetchProjects();
-  }, [currentPage, filters]);
-
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -277,7 +273,11 @@ const ProjectManagement = ({ onNavigate, onEditProject }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, filters]);
+
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
 
   const handleFilterChange = (field, value) => {
     setFilters(prev => ({

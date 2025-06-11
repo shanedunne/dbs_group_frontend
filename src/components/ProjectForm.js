@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { FaCamera } from 'react-icons/fa';
 import { adminAPI } from '../utils/api';
@@ -116,52 +116,7 @@ const Input = styled.input`
   `}
 `;
 
-const TextArea = styled.textarea`
-  padding: ${props => props.theme.spacing[3]} ${props => props.theme.spacing[4]};
-  border: 1px solid #e2e8f0;
-  border-radius: ${props => props.theme.borderRadius.md};
-  font-size: ${props => props.theme.fontSizes.base};
-  font-family: inherit;
-  resize: vertical;
-  min-height: 120px;
-  transition: border-color ${props => props.theme.transitions.fast};
-  
-  &:focus {
-    outline: none;
-    border-color: ${props => props.theme.colors.primary};
-    box-shadow: 0 0 0 3px rgba(140, 198, 62, 0.1);
-  }
-  
-  &::placeholder {
-    color: ${props => props.theme.colors.mediumGray};
-  }
-  
-  ${props => props.error && `
-    border-color: ${props.theme.colors.danger};
-    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
-  `}
-`;
 
-const Select = styled.select`
-  padding: ${props => props.theme.spacing[3]} ${props => props.theme.spacing[4]};
-  border: 1px solid #e2e8f0;
-  border-radius: ${props => props.theme.borderRadius.md};
-  font-size: ${props => props.theme.fontSizes.base};
-  background-color: white;
-  cursor: pointer;
-  transition: border-color ${props => props.theme.transitions.fast};
-  
-  &:focus {
-    outline: none;
-    border-color: ${props => props.theme.colors.primary};
-    box-shadow: 0 0 0 3px rgba(140, 198, 62, 0.1);
-  }
-  
-  ${props => props.error && `
-    border-color: ${props.theme.colors.danger};
-    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
-  `}
-`;
 
 const CategoryCheckboxGroup = styled.div`
   display: grid;
@@ -333,13 +288,7 @@ const ProjectForm = ({ projectId, onBack, onSuccess }) => {
 
   const isEditMode = Boolean(projectId);
 
-  useEffect(() => {
-    if (isEditMode) {
-      fetchProject();
-    }
-  }, [projectId]);
-
-  const fetchProject = async () => {
+  const fetchProject = useCallback(async () => {
     try {
       setIsLoading(true);
       const response = await adminAPI.getProject(projectId);
@@ -377,7 +326,13 @@ const ProjectForm = ({ projectId, onBack, onSuccess }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [projectId]);
+
+  useEffect(() => {
+    if (isEditMode) {
+      fetchProject();
+    }
+  }, [isEditMode, fetchProject]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -757,7 +712,7 @@ const ProjectForm = ({ projectId, onBack, onSuccess }) => {
                 <ImagePreview>
                   {images.map((image, index) => (
                     <ImageItem key={index}>
-                      <img src={image.url} alt={`Project image ${index + 1}`} />
+                      <img src={image.url} alt={`Project ${index + 1}`} />
                       <button
                         type="button"
                         className="remove-btn"

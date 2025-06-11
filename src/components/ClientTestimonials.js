@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
@@ -118,9 +118,9 @@ const ClientTestimonials = () => {
     }
   ];
 
-  const nextTestimonial = () => {
+  const nextTestimonial = useCallback(() => {
     setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
-  };
+  }, [testimonials.length]);
 
   const prevTestimonial = () => {
     setCurrentTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length);
@@ -134,7 +134,7 @@ const ClientTestimonials = () => {
   useEffect(() => {
     const interval = setInterval(nextTestimonial, 5000); // Change every 5 seconds
     return () => clearInterval(interval);
-  }, []);
+  }, [nextTestimonial]);
 
   return (
     <TestimonialCarousel>

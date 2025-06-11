@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
@@ -257,11 +257,7 @@ const ProjectDetail = () => {
   const [error, setError] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  useEffect(() => {
-    fetchProject();
-  }, [slug]);
-
-  const fetchProject = async () => {
+  const fetchProject = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -273,7 +269,11 @@ const ProjectDetail = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [slug]);
+
+  useEffect(() => {
+    fetchProject();
+  }, [fetchProject]);
 
   const formatValue = (value) => {
     if (!value) return 'Confidential';
@@ -351,7 +351,7 @@ const ProjectDetail = () => {
 
         <EmbeddedGallery>
           {getCurrentImage() ? (
-            <img src={getCurrentImage()} alt={`${project.title} - Image ${currentImageIndex + 1}`} />
+            <img src={getCurrentImage()} alt={`${project.title} - ${currentImageIndex + 1}`} />
           ) : (
             <PlaceholderGallery>Project Image</PlaceholderGallery>
           )}
