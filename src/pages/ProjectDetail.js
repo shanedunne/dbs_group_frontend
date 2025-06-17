@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaChevronLeft, FaChevronRight, FaExpand } from 'react-icons/fa';
 import { projectsAPI } from '../utils/api';
 import Button from '../components/Button';
+import ImageModal from '../components/ImageModal';
 
 const ProjectDetailWrapper = styled.div`
   min-height: 80vh;
@@ -42,21 +43,33 @@ const Breadcrumb = styled.nav`
 
 const EmbeddedGallery = styled.div`
   width: 100%;
-  height: 450px;
+  height: 200px;
   border-radius: ${props => props.theme.borderRadius.lg};
   overflow: hidden;
   margin-bottom: ${props => props.theme.spacing[12]};
   position: relative;
+  cursor: pointer;
+  
+  @media (min-width: ${props => props.theme.breakpoints.sm}) {
+    height: 300px;
+  }
   
   @media (min-width: ${props => props.theme.breakpoints.md}) {
     height: 550px;
+    cursor: default;
   }
   
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: opacity ${props => props.theme.transitions.normal};
+    transition: all ${props => props.theme.transitions.normal};
+  }
+  
+  &:hover img {
+    @media (max-width: ${props => props.theme.breakpoints.md}) {
+      transform: scale(1.02);
+    }
   }
 `;
 
@@ -67,6 +80,10 @@ const GalleryControls = styled.div`
   display: flex;
   gap: ${props => props.theme.spacing[2]};
   z-index: 2;
+  
+  @media (max-width: ${props => props.theme.breakpoints.md}) {
+    display: none;
+  }
 `;
 
 const GalleryNavButton = styled.button`
@@ -109,6 +126,33 @@ const ImageCounter = styled.div`
   font-size: ${props => props.theme.fontSizes.sm};
   font-weight: ${props => props.theme.fontWeights.medium};
   z-index: 2;
+`;
+
+const ExpandButton = styled.button`
+  position: absolute;
+  top: ${props => props.theme.spacing[4]};
+  right: ${props => props.theme.spacing[4]};
+  background: rgba(0, 0, 0, 0.7);
+  border: none;
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: ${props => props.theme.borderRadius.md};
+  cursor: pointer;
+  font-size: ${props => props.theme.fontSizes.sm};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all ${props => props.theme.transitions.normal};
+  z-index: 2;
+  
+  &:hover {
+    background: rgba(0, 0, 0, 0.8);
+  }
+  
+  @media (min-width: ${props => props.theme.breakpoints.md}) {
+    display: none;
+  }
 `;
 
 const CategoryTags = styled.div`
@@ -256,6 +300,7 @@ const ProjectDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchProject = useCallback(async () => {
     try {
@@ -309,6 +354,38 @@ const ProjectDetail = () => {
     return project?.featuredImage && imageCount === 0 ? 1 : imageCount;
   };
 
+  const getAllImages = () => {
+    const images = [];
+    if (project?.featuredImage) {
+      images.push(project.featuredImage);
+    }
+    if (project?.images && project.images.length > 0) {
+      images.push(...project.images);
+    }
+    return images;
+  };
+
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const nextImageModal = () => {
+    const allImages = getAllImages();
+    if (currentImageIndex < allImages.length - 1) {
+      setCurrentImageIndex(currentImageIndex + 1);
+    }
+  };
+
+  const prevImageModal = () => {
+    if (currentImageIndex > 0) {
+      setCurrentImageIndex(currentImageIndex - 1);
+    }
+  };
+
 
   if (loading) {
     return (
@@ -349,7 +426,7 @@ const ProjectDetail = () => {
           <span>{project.title}</span>
         </Breadcrumb>
 
-        <EmbeddedGallery>
+        <EmbeddedGallery onClick={openModal}>
           {getCurrentImage() ? (
             <img src={getCurrentImage()} alt={`${project.title} - ${currentImageIndex + 1}`} />
           ) : (
@@ -361,16 +438,19 @@ const ProjectDetail = () => {
               <ImageCounter>
                 {currentImageIndex + 1} of {getTotalImages()}
               </ImageCounter>
+              <ExpandButton onClick={(e) => { e.stopPropagation(); openModal(); }} title="View full size">
+                <FaExpand />
+              </ExpandButton>
               <GalleryControls>
                 <GalleryNavButton 
-                  onClick={prevImage}
+                  onClick={(e) => { e.stopPropagation(); prevImage(); }}
                   disabled={currentImageIndex === 0}
                   title="Previous image"
                 >
                   <FaChevronLeft />
                 </GalleryNavButton>
                 <GalleryNavButton 
-                  onClick={nextImage}
+                  onClick={(e) => { e.stopPropagation(); nextImage(); }}
                   disabled={currentImageIndex >= getTotalImages() - 1}
                   title="Next image"
                 >
@@ -379,7 +459,23 @@ const ProjectDetail = () => {
               </GalleryControls>
             </>
           )}
+          
+          {getTotalImages() === 1 && (
+            <ExpandButton onClick={(e) => { e.stopPropagation(); openModal(); }} title="View full size">
+              <FaExpand />
+            </ExpandButton>
+          )}
         </EmbeddedGallery>
+        
+        <ImageModal
+          isOpen={isModalOpen}
+          onClose={closeModal}
+          images={getAllImages()}
+          currentIndex={currentImageIndex}
+          onNext={nextImageModal}
+          onPrev={prevImageModal}
+          projectTitle={project.title}
+        />
 
         <ProjectContent>
           <MainContent>
@@ -432,7 +528,6 @@ const ProjectDetail = () => {
 
         <CTASection>
           <h3>Interested in Similar Work?</h3>
-          <p>Contact our team to discuss your construction project requirements</p>
           <Button as={Link} to="/contact" variant="secondary" size="lg">
             Get In Touch
           </Button>

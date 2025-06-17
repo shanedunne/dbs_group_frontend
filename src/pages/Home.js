@@ -370,7 +370,6 @@ const Home = () => {
       <CTASection>
         <Container>
           <h2>Ready to Start Your Project?</h2>
-          <p>Get in touch with our team for a consultation and quote</p>
           <Button as={Link} to="/contact" variant="secondary" size="lg">
             Contact Us Today
           </Button>
