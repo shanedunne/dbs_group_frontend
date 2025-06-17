@@ -330,8 +330,23 @@ const ProjectDetail = () => {
   };
 
 
+  const getAllImages = () => {
+    const images = [];
+    
+    // If we have project images, use those (featuredImage is likely the first one)
+    if (project?.images && project.images.length > 0) {
+      images.push(...project.images);
+    } else if (project?.featuredImage) {
+      // Only use featuredImage if there are no other images
+      images.push(project.featuredImage);
+    }
+    
+    return images;
+  };
+
   const nextImage = () => {
-    if (project?.images && currentImageIndex < project.images.length - 1) {
+    const allImages = getAllImages();
+    if (currentImageIndex < allImages.length - 1) {
       setCurrentImageIndex(currentImageIndex + 1);
     }
   };
@@ -343,26 +358,12 @@ const ProjectDetail = () => {
   };
 
   const getCurrentImage = () => {
-    if (project?.images && project.images.length > 0) {
-      return project.images[currentImageIndex];
-    }
-    return project?.featuredImage;
+    const allImages = getAllImages();
+    return allImages[currentImageIndex] || null;
   };
 
   const getTotalImages = () => {
-    const imageCount = project?.images?.length || 0;
-    return project?.featuredImage && imageCount === 0 ? 1 : imageCount;
-  };
-
-  const getAllImages = () => {
-    const images = [];
-    if (project?.featuredImage) {
-      images.push(project.featuredImage);
-    }
-    if (project?.images && project.images.length > 0) {
-      images.push(...project.images);
-    }
-    return images;
+    return getAllImages().length;
   };
 
   const openModal = () => {
@@ -385,6 +386,11 @@ const ProjectDetail = () => {
       setCurrentImageIndex(currentImageIndex - 1);
     }
   };
+
+  // Reset image index when project changes
+  useEffect(() => {
+    setCurrentImageIndex(0);
+  }, [project]);
 
 
   if (loading) {
